@@ -1,0 +1,6 @@
+com\homework\olexii\entities\Notice.class
+com\homework\olexii\configuration\DBConfiguration.class
+com\homework\olexii\MyApplication.class
+com\homework\olexii\configuration\SQLiteDialect.class
+com\homework\olexii\repositories\NoteRepository.class
+com\homework\olexii\controller\NoteController.class

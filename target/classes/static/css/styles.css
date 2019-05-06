@@ -1,0 +1,64 @@
+.wrapper {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.has-margin {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.notes {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.notes > section {
+    margin-bottom: 15px;
+    border: 1px solid grey;
+    padding: 10px;
+    width: 100%;
+}
+
+.active {
+    background-color: #F2F4F4;
+}
+
+input {
+    min-width: 400px;
+    height: 100%;
+    padding: 10px;
+}
+
+.new-note {
+    display: flex;
+    justify-content: center;
+}
+
+.controllers {
+    display: none;
+    justify-content: center;
+}
+
+.controllers span {
+    margin-right: 3%;
+    margin-left: 3%;
+    font-size: 26px;
+}
+
+.controllers #remove {
+    color: red;
+}
+
+.controllers #edit {
+    color: green;
+}
+
+.controllers #table-up, #table-down {
+    color: blue;
+}
+
+.update-note-btn {
+    display: none;
+}
