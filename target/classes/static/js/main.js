@@ -1,5 +1,4 @@
 var currentNote;
-
 jQuery.each(["put", "delete", "post"], function (i, method) {
     jQuery[method] = function (url, data, callback) {
         if (jQuery.isFunction(data)) {
@@ -60,10 +59,10 @@ function deleteNoteFromDB(id) {
 function getAllNotes() {
     $.get("http://localhost:8080/notes", function (resp) {
         var allNotes = resp;
+        countOfNotes = allNotes.length;
         for (var i = 0; i < allNotes.length; i++) {
-            $(".notes").append(`<section id="${allNotes[i].id}" onclick="selectNote()" ondblclick="unSelectNote()" style="order: ${i + 1}"> 
-                            ${allNotes[i].text}
-                        </section>`)
+            $(".notes").append(`<section id="${allNotes[i].id}" onclick="selectNote()" ondblclick="unSelectNote()" 
+                            style="order: ${i + 1}">  ${allNotes[i].text} </section>`)
         }
     });
 }
@@ -82,17 +81,28 @@ function selectNote() {
     currentNote = event.target;
     $(".active") ? $(".active").removeClass("active") : '';
     $(".controllers").css("display", "flex");
-    $(currentNote).addClass("active");
+    $(currentNote).addClass("   active");
 }
 
 function noteUp() {
-    var newOrder = $(currentNote).css("order") - 2;
-    $(currentNote).css("order", newOrder)
+    var currentOrder = $(currentNote).css("order");
+    if (currentOrder > 1) {
+        var previousNote = getElementByStyle(currentOrder - 1);
+        var newOrder = $(currentNote).css("order") - 1;
+        $(previousNote).css("order", currentOrder);
+        $(currentNote).css("order", newOrder);
+    }
+
 }
 
 function noteDown() {
-    var newOrder = +$(currentNote).css("order") + 2;
-    $(currentNote).css("order", newOrder)
+    var currentOrder = $(currentNote).css("order");
+    if (currentOrder < countOfNotes) {
+        var nextNote = getElementByStyle(currentOrder -1 + 2);
+        var newOrder = $(currentNote).css("order") - 1 + 2;
+        $(nextNote).css("order", currentOrder);
+        $(currentNote).css("order", newOrder);
+    }
 }
 
 function editNote() {
@@ -112,9 +122,9 @@ function updateNote() {
     $("#new-note").val("");
     var newNote = $(currentNote).text();
     var id = $(currentNote).attr('id');
+    updateNoteInDB(id, newNote);
     $(".save-note-btn").css("display", "block");
     $(".update-note-btn").css("display", "none");
-    updateNoteInDB(id, newNote);
 }
 
 function updateNoteInDB(id, newNote) {
@@ -126,4 +136,18 @@ function updateNoteInDB(id, newNote) {
         .done(function (data) {
             console.log("Data updated: " + data);
         });
+}
+
+
+function  getElementByStyle(styleNumber) {
+    styleNumber = styleNumber+"";
+    var tags = document.getElementsByTagName('section');
+    var s;
+    for (var i = 0; i < tags.length; i++) {
+        if (($(tags[i]).css("order")) === styleNumber) {
+            previousNote = tags[i];
+            s = tags[i];
+        }
+    }
+    return s;
 }

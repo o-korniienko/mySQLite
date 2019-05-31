@@ -22,7 +22,7 @@
 }
 
 .active {
-    background-color: #F2F4F4;
+    background-color: chartreuse;
 }
 
 input {
@@ -60,5 +60,5 @@ input {
 }
 
 .update-note-btn {
-    display: none;
-}
+     display: none;
+ }
