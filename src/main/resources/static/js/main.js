@@ -88,9 +88,8 @@ function noteUp() {
     var currentOrder = $(currentNote).css("order");
     if (currentOrder > 1) {
         var previousNote = getElementByStyle(currentOrder - 1);
-        var newOrder = $(currentNote).css("order") - 1;
         $(previousNote).css("order", currentOrder);
-        $(currentNote).css("order", newOrder);
+        $(currentNote).css("order", currentOrder - 1);
     }
 
 }
@@ -98,10 +97,9 @@ function noteUp() {
 function noteDown() {
     var currentOrder = $(currentNote).css("order");
     if (currentOrder < countOfNotes) {
-        var nextNote = getElementByStyle(currentOrder -1 + 2);
-        var newOrder = $(currentNote).css("order") - 1 + 2;
+        var nextNote = getElementByStyle(+currentOrder + 1);
         $(nextNote).css("order", currentOrder);
-        $(currentNote).css("order", newOrder);
+        $(currentNote).css("order", +currentOrder + 1);
     }
 }
 
@@ -139,8 +137,8 @@ function updateNoteInDB(id, newNote) {
 }
 
 
-function  getElementByStyle(styleNumber) {
-    styleNumber = styleNumber+"";
+function getElementByStyle(styleNumber) {
+    styleNumber = styleNumber.toString();
     var tags = document.getElementsByTagName('section');
     var s;
     for (var i = 0; i < tags.length; i++) {
