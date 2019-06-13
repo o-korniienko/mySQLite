@@ -13,6 +13,7 @@ public class Notice {
     private long id;
 
     private String text;
+    private long styleNumber;
 
     public Notice() {
     }
@@ -38,6 +39,14 @@ public class Notice {
         this.text = text;
     }
 
+    public long getStyleNumber() {
+        return styleNumber;
+    }
+
+    public void setStyleNumber(long styleNumber) {
+        this.styleNumber = styleNumber;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,6 +66,7 @@ public class Notice {
         return "Notice{" +
                 "id=" + id +
                 ", text='" + text + '\'' +
+                ", styleNumber=" + styleNumber +
                 '}';
     }
 }

@@ -1,4 +1,6 @@
 var currentNote;
+var countOfNotes;
+var allNotes = [];
 jQuery.each(["put", "delete", "post"], function (i, method) {
     jQuery[method] = function (url, data, callback) {
         if (jQuery.isFunction(data)) {
@@ -20,17 +22,24 @@ jQuery.each(["put", "delete", "post"], function (i, method) {
 
 
 function saveNote() {
+    countOfNotes = allNotes.length;
+    var order;
+    if (countOfNotes === 0) {
+        order = 1;
+    } else {
+        order = countOfNotes + 1;
+    }
     var newNote = $("#new-note").val();
     $("#new-note").val("");
     if (newNote != false) {
-        insertNote(newNote);
-        saveNoteToDB(newNote);
+        saveNoteToDB(newNote, order);
     }
 }
 
-function saveNoteToDB(newNote) {
+function saveNoteToDB(newNote, order) {
     var noteObj = {
-        text: newNote
+        text: newNote,
+        styleNumber: order
     }
     var jsonNote = JSON.stringify(noteObj);
     $.post("http://localhost:8080/notes", jsonNote)
@@ -44,7 +53,19 @@ function saveNoteToDB(newNote) {
 function deleteNote() {
     $(currentNote).css("display", "none");
     var id = $(currentNote).attr('id');
+    deleteNoteFromList(id);
+    console.log("deleted from list:");
+    console.log(allNotes);
     deleteNoteFromDB(id);
+}
+
+function deleteNoteFromList(id) {
+    for (var i = 0; i < allNotes.length; i++) {
+        if (allNotes[i].id == id) {
+            allNotes.splice(i, 1);
+            console.log('deleted successfully');
+        }
+    }
 }
 
 function deleteNoteFromDB(id) {
@@ -53,24 +74,32 @@ function deleteNoteFromDB(id) {
         .done(function (data) {
             console.log("successfully deleted");
             console.log(data);
+            updateNotes(allNotes);
+        });
+}
+
+function updateNotes(notes) {
+    var jsonNotes = JSON.stringify(notes);
+    $.put("http://localhost:8080/notes/all", jsonNotes)
+        .done(function (data) {
+            console.log("Data updated: " + data);
+            $(".notes").empty();
+            getAllNotes();
         });
 }
 
 function getAllNotes() {
     $.get("http://localhost:8080/notes", function (resp) {
-        var allNotes = resp;
+        allNotes = resp;
         countOfNotes = allNotes.length;
         for (var i = 0; i < allNotes.length; i++) {
-            $(".notes").append(`<section id="${allNotes[i].id}" onclick="selectNote()" ondblclick="unSelectNote()" 
-                            style="order: ${i + 1}">  ${allNotes[i].text} </section>`)
+            $(".notes").append(`<section id="${allNotes[i].id}" class="nts" onclick="selectNote()" ondblclick="unSelectNote()" 
+                            style="order:${allNotes[i].styleNumber}">  ${allNotes[i].text} </section>`)
         }
+        allNotes.sort(sortByStyle);
+        console.log("loaded list:");
+        console.log(allNotes);
     });
-}
-
-function insertNote(newNote) {
-    var length = $(".notes > section").length;
-    var viewTemplete = `<section id="" style="order: ${length + 1}" onclick="selectNote()" ondblclick="unSelectNote()">${newNote}</section>`;
-    $(".notes").append(viewTemplete);
 }
 
 $(document).ready(function () {
@@ -82,15 +111,17 @@ function selectNote() {
     $(".active") ? $(".active").removeClass("active") : '';
     $(".controllers").css("display", "flex");
     $(currentNote).addClass("   active");
+    console.log($(currentNote).css("order") + " - current order");
 }
 
 function noteUp() {
     var currentOrder = $(currentNote).css("order");
     if (currentOrder > 1) {
         var previousNote = getElementByStyle(currentOrder - 1);
-        console.log(previousNote);
         $(previousNote).css("order", currentOrder);
         $(currentNote).css("order", currentOrder - 1);
+        updateStyleInDb(currentNote, previousNote);
+        allNotes.sort(sortByStyle);
     }
 
 }
@@ -99,10 +130,34 @@ function noteDown() {
     var currentOrder = $(currentNote).css("order");
     if (currentOrder < countOfNotes) {
         var nextNote = getElementByStyle(+currentOrder + 1);
-        console.log(nextNote);
         $(nextNote).css("order", currentOrder);
         $(currentNote).css("order", +currentOrder + 1);
+        updateStyleInDb(currentNote, nextNote);
+        allNotes.sort(sortByStyle);
     }
+}
+
+function updateStyleInDb(currentNote, otherNote) {
+    var currentId = $(currentNote).attr('id');
+    var otherId = $(otherNote).attr('id');
+    var currentNoteObj = {
+        text: $(currentNote).text(),
+        styleNumber: $(currentNote).css("order")
+    }
+    var otherNoteObj = {
+        text: $(otherNote).text(),
+        styleNumber: $(otherNote).css("order")
+    }
+    var currentJsonNote = JSON.stringify(currentNoteObj);
+    var otherJsonNote = JSON.stringify(otherNoteObj);
+    $.put("http://localhost:8080/notes?id=" + currentId, currentJsonNote)
+        .done(function (data) {
+            console.log("Data updated: " + data);
+            $.put("http://localhost:8080/notes?id=" + otherId, otherJsonNote)
+                .done(function (data) {
+                    console.log("Data updated: " + data);
+                });
+        });
 }
 
 function editNote() {
@@ -122,14 +177,15 @@ function updateNote() {
     $("#new-note").val("");
     var newNote = $(currentNote).text();
     var id = $(currentNote).attr('id');
-    updateNoteInDB(id, newNote);
+    updateNoteInDB(id, newNote, $(currentNote).css("order"));
     $(".save-note-btn").css("display", "block");
     $(".update-note-btn").css("display", "none");
 }
 
-function updateNoteInDB(id, newNote) {
+function updateNoteInDB(id, newNote, style) {
     var noteObj = {
-        text: newNote
+        text: newNote,
+        styleNumber: style
     }
     var jsonNote = JSON.stringify(noteObj);
     $.put("http://localhost:8080/notes?id=" + id, jsonNote)
@@ -150,4 +206,12 @@ function getElementByStyle(styleNumber) {
         }
     }
     return s;
+}
+
+function sortByStyle(a, b) {
+    return (a.styleNumber - b.styleNumber);
+}
+
+function getAllSections() {
+    return document.getElementsByClassName("nts");
 }

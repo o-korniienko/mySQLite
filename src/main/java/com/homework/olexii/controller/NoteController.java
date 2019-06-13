@@ -44,4 +44,18 @@ public class NoteController {
         noteRepository.save(noticeFromDB);
         return notice;
     }
+
+    @PutMapping("/all")
+    public List<Notice> updateNotes(@RequestBody List<Notice> notices) {
+        if (notices.size() == 0) {
+            return null;
+        }
+        for (int i = 0; i < notices.size(); i++) {
+            notices.get(i).setStyleNumber(i + 1);
+        }
+        for (Notice notice : notices) {
+            noteRepository.save(notice);
+        }
+        return notices;
+    }
 }
