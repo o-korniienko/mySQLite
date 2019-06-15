@@ -174,6 +174,7 @@ function updateNote() {
     var newNote = $(currentNote).text();
     var id = $(currentNote).attr('id');
     updateNoteInDB(id, newNote, $(currentNote).css("order"));
+    updateNoteInList(currentNote, newNote);
     $(".save-note-btn").css("display", "block");
     $(".update-note-btn").css("display", "none");
 }
@@ -190,6 +191,14 @@ function updateNoteInDB(id, newNote, style) {
         });
 }
 
+function updateNoteInList(note, newText) {
+    var id = $(note).attr('id');
+    for (let i = 0; i < allNotes.length; i++) {
+        if (allNotes[i].id == id){
+            allNotes[i].text = newText;
+        }
+    }
+}
 
 function getElementByStyle(styleNumber) {
     styleNumber = styleNumber.toString();

@@ -54,8 +54,6 @@ function deleteNote() {
     $(currentNote).css("display", "none");
     var id = $(currentNote).attr('id');
     deleteNoteFromList(id);
-    console.log("deleted from list:");
-    console.log(allNotes);
     deleteNoteFromDB(id);
 }
 
@@ -63,7 +61,6 @@ function deleteNoteFromList(id) {
     for (var i = 0; i < allNotes.length; i++) {
         if (allNotes[i].id == id) {
             allNotes.splice(i, 1);
-            console.log('deleted successfully');
         }
     }
 }
@@ -111,7 +108,6 @@ function selectNote() {
     $(".active") ? $(".active").removeClass("active") : '';
     $(".controllers").css("display", "flex");
     $(currentNote).addClass("   active");
-    console.log($(currentNote).css("order") + " - current order");
 }
 
 function noteUp() {
@@ -178,6 +174,7 @@ function updateNote() {
     var newNote = $(currentNote).text();
     var id = $(currentNote).attr('id');
     updateNoteInDB(id, newNote, $(currentNote).css("order"));
+    updateNoteInList(currentNote, newNote);
     $(".save-note-btn").css("display", "block");
     $(".update-note-btn").css("display", "none");
 }
@@ -194,6 +191,14 @@ function updateNoteInDB(id, newNote, style) {
         });
 }
 
+function updateNoteInList(note, newText) {
+    var id = $(note).attr('id');
+    for (let i = 0; i < allNotes.length; i++) {
+        if (allNotes[i].id == id){
+            allNotes[i].text = newText;
+        }
+    }
+}
 
 function getElementByStyle(styleNumber) {
     styleNumber = styleNumber.toString();
@@ -210,8 +215,4 @@ function getElementByStyle(styleNumber) {
 
 function sortByStyle(a, b) {
     return (a.styleNumber - b.styleNumber);
-}
-
-function getAllSections() {
-    return document.getElementsByClassName("nts");
 }
